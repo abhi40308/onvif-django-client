@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<br>
+<br>
+
+{% if success %}
+
+<div class="ui message container transition" style="text-align: center; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+    <i class="close icon"></i>
+    <p>
+  Login was not successful, please try again.
+    </p>
+</div>
+<br>
+{% endif %}
+
+<div style="text-align: center; font-size: 16px; font-family: Arial, Helvetica, sans-serif;">Enter camera credentials</div>
+<br>
+<div class="ui one column stackable center aligned container grid">
+            <div class="sixteen wide mobile eight wide computer column">
+                    <div class="ui raised padded text container segment">
+                    <form action="{% url 'camera_login' %}" method="post"  enctype="multipart/form-data" class="ui form">
+                      {% csrf_token %}
+                            <div class="field">
+                              <label>IP address</label>
+                              <input type="text" name="ip-add" placeholder="IP address" required>
+                            </div>
+                            <div class="field">
+                              <label>Port</label>
+                              <input type="text" name="port" placeholder="Port" required>
+                            </div>
+                            <div class="field">
+                                    <label>Username</label>
+                                    <input type="text" name="username" placeholder="Username" required>
+                            </div>
+                            <div class="field">
+                                    <label>Password</label>
+                                    <input type="text" name="password" placeholder="Password" required>
+                            </div>
+                            <div class="field">
+                              <div class="ui checkbox">
+                                <input type="checkbox" tabindex="0" checked="checked">
+                                <label>Remember This Camera</label>
+                              </div>
+                            </div>
+                            <button class="ui button" type="submit">Submit</button>
+                    </form>
+                    </div>
+            </div>   
+</div>
+
+<script>
+  $('.message .close')
+  .on('click', function() {
+    $(this)
+      .closest('.message')
+      .transition('fade')
+    ;
+  })
+;
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "${workspaceFolder}/newvir/bin/python",
+    "python.linting.pylintEnabled": false
+}
