@@ -1,6 +1,69 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<br>
+<div class="ui container grid">
+<div class="eight wide computer sixteen wide mobile column">
+    <div class="ui teal message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+        <p style="font-size: 16px; font-style: italic">Device information :</p>
+        {% if Manufacturer %}
+        <p>Manufacturer : {{ Manufacturer }} </p>
+        {% endif %}
+        {% if Model %}
+        <p>Model : {{ Model }} </p>
+        {% endif %}
+        {% if FirmwareVersion %}
+        <p>Firmware Version : {{ FirmwareVersion }} </p>
+        {% endif %}
+        {% if SerialNumber %}
+        <p>Serial Number : {{ SerialNumber }} </p>
+        {% endif %}
+        {% if HardwareId %}
+        <p>Hardware Id : {{ HardwareId }} </p>
+        {% endif %}
+    </div>
+</div>
+<div class="eight wide computer sixteen wide mobile column">
+    <div class="ui olive message" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+        <p style="font-size: 16px;">System Date information :</p>
+        <!-- {% if Sysdt_dt %}
+        <p>System Time : {{ Sysdt_dt.Date.UTCDateTime.Time.Hour }}:{{ Sysdt_dt.Date.UTCDateTime.Time.Minute }} </p>
+        {% endif %} -->
+        {% if Sysdt_year %}
+        <p>System Year/Month/Day : {{ Sysdt_year.Year }}/{{ Sysdt_year.Month }}/{{ Sysdt_year.Day }}  </p>
+        {% endif %}
+        {% if Sysdt_hour %}
+        <p>Daylight Savings? : {{ Sysdt_hour }} </p>
+        {% endif %}
+        {% if Sysdt_tz %}
+        <p>System Time Zone : {{ Sysdt_tz.TZ }} </p>
+        {% endif %}
+    </div>
+</div>
+<div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+    <div class="sixteen wide column">
+    {% if syslog_resp_list %}
+    <div class="ui blue message">
+        <p style="font-size: 16px; font-style: Bold;">System Logs :</p>
+        {% for log in syslog_resp_list %}
+        <p style="font-size: 12px; font-style: italic"> {{ log }} </p>
+        {% endfor %}
+    {% else %}
+        <p style="font-size: 12px;">Camera didn't return any logs</p>
+    {% endif %}
+    </div>
+    </div>
+</div>
+
+<!-- <div class="ui container grid" style="font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+        <div class="sixteen wide column">
+        <div class="ui orange message">
+        {% if sup_info %}
+            <p  style="font-size: 14px; font-style: bold;"> Support information {{ sup_info }} </p>
+        {% endif %}
+        </div>
+        </div>
+</div> -->
 
 
 

@@ -7,6 +7,7 @@ import os
 from django.template import RequestContext
 from onvifApp.settings import BASE_DIR
 from camera.models import Camera
+from onvif import ONVIFService
 # import zeep
 # from zeep.wsse.username import UsernameToken
 
@@ -17,68 +18,63 @@ class CameraView(View):
     def get(self, request, *args, **kwargs):
         
         # Get Hostname
-        obj = Camera.objects.get(id=kwargs['id'])
+        cam_obj = Camera.objects.get(id=kwargs['id'])
         mycam = None
         try:
-            mycam = ONVIFCamera(obj.ip, obj.port, obj.username, obj.password, '/usr/local/lib/python2.7/site-packages/wsdl/')
-            resp = mycam.devicemgmt.GetHostname()
-            print ('My camera`s hostname: ', str(resp.Name))
-            resp_name = str(resp.Name)
-            print('resp name ', resp_name)
-            if resp_name == 'None':
-                obj.delete()
-                return render( request,
-			        'camera_login.html', {'success': 'False'})
+            mycam = ONVIFCamera(cam_obj.ip, cam_obj.port, cam_obj.username, cam_obj.password, '/usr/local/lib/python2.7/site-packages/wsdl/')
         except Exception as e:
             print('Exception message : ' , str(e))
-            obj.delete()
+            cam_obj.delete()
             return render( request,
 			        'camera_login.html', {'success': 'False'})
-        print('mycam ; ', mycam)
-
-        # print('mycam is : ',mycam)
         
-        # request.session['mycam'] = mycam
-        # return redirect(
-		# 	'camera_detail', host=str(resp.Name))
+        # Getdevice information
 
-        # mycam = request.session.get('mycam', None)
-        # resp = mycam.devicemgmt.GetHostname()
-        # print ('My camera`s hostname: ', str(resp.Name))
-        # dt = mycam.devicemgmt.GetSystemDateAndTime()
-        # tz = dt.TimeZone
-        # year = dt.UTCDateTime.Date.Year
-        # hour = dt.UTCDateTime.Time.Hour
-        # print('date tz year hour', dt, tz, year, hour)
-        # ptz_service = mycam.create_media_service()
-        # # Get ptz configuration
-        # ptz_service.GetVideoSources()
-        # print('ptz viedo sources : ', ptz_service)
+        resp = mycam.devicemgmt.GetHostname()
+        hostname = str(resp.Name)
+        resp = mycam.devicemgmt.GetDeviceInformation()
+        Manufacturer = str(resp.Manufacturer)
+        Model = str(resp.Model)
+        FirmwareVersion = str(resp.FirmwareVersion)
+        SerialNumber = str(resp.SerialNumber)
+        HardwareId = str(resp.HardwareId)
+
+        ############
+
+        # Get System log
+
+        syslog_obj = mycam.devicemgmt.create_type('GetSystemLog')
+        #print('#######' , syslog_obj)
+        syslog_obj['LogType'] = 'Access'
+        syslog_resp_list = None
+        try:
+            syslog_resp = mycam.devicemgmt.GetSystemLog({'LogType' : syslog_obj.LogType})
+            syslog_resp_list = str(syslog_resp.String).split('\n')
+            #print(syslog_resp_list)
+        except Exception as e:
+            print('System log error: ', str(e))
+
+        #############
+
+        # Get date time 
+
+        Sysdt_dt = mycam.devicemgmt.GetSystemDateAndTime()
+        Sysdt_tz = Sysdt_dt.TimeZone
+        Sysdt_year = Sysdt_dt.UTCDateTime.Date
+        Sysdt_hour = Sysdt_dt.DaylightSavings
+        
+        #############
+
 
         return render( request,
-			'camera_detail.html')
-
-        # from zeep.wsse.username import UsernameToken
-        # client = zeep.Client('https://www.onvif.org/ver10/media/wsdl/media.wsdl', wsse=UsernameToken('user', 'password', use_digest=True))
-        # service = client.create_service('{http://www.onvif.org/ver10/media/wsdl}MediaBinding', 'http://127.0.0.1:80/onvif/media_service')
-        # service.GetProfiles()
-
-        # ptz_service.GetStreamUri()
-        # print(ptz_service)
-
-        #obj = mycam.create_media_service()
-        #profiles = obj.GetProfiles()
-        #print('profiles are : ', profiles)
-        #token = profiles[0]._token
-        # media_service = mycam.create_media_service()
-        # profiles = media_service.GetProfiles()
-        # token = profiles[0]._token
-        # obj = media_service.create_type('GetStreamUri')
-        # obj.ProfileToken = token
-        # obj.StreamSetup.Stream = 'RTP-Unicast'
-        # obj.StreamSetup.Transport.Protocol = 'RTSP'
-        # print(media_service.GetStreamUri(obj))
-        #print(obj)
+			'camera_detail.html', {'hostname': hostname,
+                'Manufacturer' : Manufacturer,'Model' : Model, 
+                'FirmwareVersion': FirmwareVersion,
+                'SerialNumber' : SerialNumber, 'HardwareId':HardwareId,
+                'syslog_resp_list' : syslog_resp_list,
+                'Sysdt_dt':Sysdt_dt, 'Sysdt_year' : Sysdt_year,
+                'Sysdt_hour' : Sysdt_hour, 'Sysdt_tz' : Sysdt_tz
+                 })
 
     def post(self, request, *args, **kwargs):
         print('nothing')
@@ -94,20 +90,7 @@ class CameraLoginView(View):
         port = request.POST.get('port', '')
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
-        obj_list = None
-        try:
-            obj_list = Camera.objects.all()
-        except:
-            obj_list = None
-        obj = None
-        if obj_list:
-            try:
-                obj = Camera.objects.get(ip=ip)
-            except:
-                obj = None
-        if obj == None:
-            Camera.objects.create(ip=ip, port=port,
-                username=username, password=password)
-            obj = Camera.objects.get(ip=ip)
+        obj = Camera.objects.create(ip=ip, port=port,
+            username=username, password=password)
         return redirect(
 			'camera_detail', obj.id)
