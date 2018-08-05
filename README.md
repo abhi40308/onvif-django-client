@@ -8,7 +8,7 @@ Onvif django app for viewing camera device information, system date time, and sy
 
 ## Update
 
-Got the finalist prize of $800 for Onvif Spotlight challenge for creating this app.
+Got the finalist prize of Onvif Spotlight challenge for creating this app.
 
  My submission : https://onvif-spotlight.bemyapp.com/#/projects/5b13e8c6b4e28a000442fb94
  
