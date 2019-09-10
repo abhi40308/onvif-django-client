@@ -3,7 +3,7 @@ Onvif django app for viewing camera device information, system date time, and sy
 
 ## Installation:
 
-`pip install django`
+`pip install django`  
 `pip install --upgrade onvif_zeep`
 
 ## Update
